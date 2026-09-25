@@ -96,7 +96,7 @@ def simulate(label, pol, noise, response_delay, response_prob, answer_accuracy):
 def make_policy(method, label, predictors, args, condition):
     name, _, variant = method.partition(':')
     common = dict(p_low=args.p_low, p_high=args.p_high, engage_dist=args.engage_dist, ask_dist=args.ask_dist,
-                  true_intent=label['intent'], smooth_n=args.smooth_n)
+                  true_intent=label['intent'], smooth_n=args.smooth_n, yield_timeout=args.yield_timeout)
     if name != 'threshold':
         return AskOrActPolicy(name, **common)
     if variant == 'raw':
@@ -122,7 +122,8 @@ def summarize(df, args):
                         ask_rate_clear=g.loc[~g.ambiguous, 'asked'].mean(),
                         ask_rate_ambiguous=g.loc[g.ambiguous, 'asked'].mean(),
                         mean_delay_s=g['delay'].mean(),
-                        stop_s_not_crossing=g.loc[g.intent == 'not_crossing', 'stopped_time'].mean()))
+                        stop_s_not_crossing=g.loc[g.intent == 'not_crossing', 'stopped_time'].mean(),
+                        timeout_rate=(g['outcome'] == 'timed out').mean()))
     summ = pd.DataFrame(out).set_index(['condition', 'method'])
     pd.set_option('display.width', 180)
     print(f'\nSummary (band {args.p_low}-{args.p_high}, deadline {args.ask_dist} m, smoothing {args.smooth_n}, response delay '
@@ -145,6 +146,7 @@ def main():
     ap.add_argument('--engage-dist', type=float, default=1.0)
     ap.add_argument('--ask-dist', type=float, default=0.6, help='decision deadline (m ahead)')
     ap.add_argument('--smooth-n', type=int, default=5, help='predictions averaged before thresholding (10 Hz)')
+    ap.add_argument('--yield-timeout', type=float, default=8.0, help='s of yielding before falling back to caution')
     ap.add_argument('--response-delay', type=float, default=1.5)
     ap.add_argument('--response-prob', type=float, default=1.0)
     ap.add_argument('--answer-accuracy', type=float, default=1.0)

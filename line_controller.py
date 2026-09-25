@@ -67,6 +67,7 @@ class LineController(Node):
             engage_dist=1.0,       # m along the line: pedestrians closer than this ahead are engaged
             ask_dist=0.6,          # m ahead: decision deadline for asking
             smooth_n=5,            # predictions averaged before thresholding
+            yield_timeout=8.0,     # s of yielding to one pedestrian before falling back to caution
             clear_dist=0.6,        # m past the line: a crossing pedestrian beyond this has cleared
             caution_dist=1.5,      # m from the line, for always_cautious
             answer_timeout=5.0,    # s to wait for an answer before giving up on it
@@ -90,7 +91,7 @@ class LineController(Node):
             model, cal = load_predictor(p('model_file'), p('model_name'), p('calibration'), p('calib_condition'))
         self.pol = AskOrActPolicy(self.policy, model, cal, p('p_low'), p('p_high'), p('engage_dist'),
                                   p('ask_dist'), p('clear_dist'), p('caution_dist'), p('answer_timeout'),
-                                  p('true_intent'), p('smooth_n'))
+                                  p('true_intent'), p('smooth_n'), p('yield_timeout'))
         self.method_desc = (self.policy if self.policy != 'threshold' else
                             f"threshold({p('model_name')}, {p('calibration')}@{p('calib_condition')}, "
                             f"band {p('p_low')}-{p('p_high')})")

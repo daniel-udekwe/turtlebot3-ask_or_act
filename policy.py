@@ -19,6 +19,16 @@ ahead, and only then asks (or, for always_cautious, stops).
                     otherwise keep going until the deadline, then ask once and stop
                     until answered, then follow the answer
   oracle          knows the true intent and yields only to crossing pedestrians (upper bound)
+
+If a question is not answered within `answer_timeout` s, the asking policies fall
+back to the cautious rule for that pedestrian: stop while it is within
+`caution_dist` of the line, otherwise continue.
+
+Yield timeout: if the robot has yielded to the same pedestrian (because of an
+answer or a confident prediction) for more than `yield_timeout` s without that
+pedestrian crossing, it stops trusting that judgment and applies the cautious
+rule to it from then on. This prevents waiting forever for someone who never
+crosses (after a wrong answer, or a prediction stuck above p_high).
 """
 import os
 import pickle
@@ -44,7 +54,7 @@ def load_predictor(model_file, model_name='mlp', calibration='isotonic', calib_c
 class AskOrActPolicy:
     def __init__(self, policy, model=None, calibrator=None, p_low=0.2, p_high=0.8,
                  engage_dist=1.0, ask_dist=0.6, clear_dist=0.6, caution_dist=1.5, answer_timeout=5.0,
-                 true_intent='', smooth_n=5):
+                 true_intent='', smooth_n=5, yield_timeout=8.0):
         if policy not in POLICIES:
             raise ValueError(f'unknown policy {policy}; choose from {POLICIES}')
         if policy == 'threshold' and model is None:
@@ -56,6 +66,8 @@ class AskOrActPolicy:
         self.answer_timeout, self.true_intent = answer_timeout, true_intent
         self.smooth_n = max(1, int(smooth_n))
         self.p_hist = {}
+        self.yield_timeout = yield_timeout
+        self.yield_start, self.yield_expired = {}, set()
         self.obs, self.side0, self.cleared = {}, {}, set()
         self.asked, self.knowledge, self.p_cache = {}, {}, {}
         self.asks, self.answers, self.decisions = [], [], []
@@ -114,7 +126,12 @@ class AskOrActPolicy:
                 self.asks.append(dict(t=round(t, 3), human=hid))
                 to_ask.append(hid)
 
-            if self.policy == 'always_act':
+            if self.policy in ('always_ask', 'threshold') and hid in self.yield_expired:
+                if abs(oy) < self.caution_dist:
+                    action, why = 'stop', 'yield timeout: cautious'
+                else:
+                    why = 'yield timeout: pedestrian away from the line'
+            elif self.policy == 'always_act':
                 why = 'always act'
             elif self.policy == 'oracle':
                 action, why = ('stop', 'oracle: crossing') if self.true_intent == 'crossing' else ('go', 'oracle: not crossing')
@@ -131,8 +148,10 @@ class AskOrActPolicy:
                     action, why = 'stop', 'asked'
                 elif waiting:
                     action, why = 'stop', 'waiting for answer'
-                else:
+                elif abs(oy) < self.caution_dist:
                     action, why = 'stop', 'no answer: cautious'
+                else:
+                    why = 'no answer: pedestrian away from the line'
             else:  # threshold
                 p = self.predict(hid)
                 if p is None:
@@ -148,8 +167,16 @@ class AskOrActPolicy:
                     action, why = 'stop', 'uncertain: asked'
                 elif waiting:
                     action, why = 'stop', 'uncertain: waiting for answer'
-                else:
+                elif abs(oy) < self.caution_dist:
                     action, why = 'stop', 'uncertain, no answer: cautious'
+                else:
+                    why = 'uncertain, no answer: pedestrian away from the line'
+            if action == 'stop' and why in ('answer: crossing', 'confident: crossing'):
+                start = self.yield_start.setdefault(hid, t)
+                if t - start > self.yield_timeout:
+                    self.yield_expired.add(hid)
+            else:
+                self.yield_start.pop(hid, None)
             self.decisions.append((round(t, 3), hid, '' if p is None else round(p, 4), action, why,
                                    round(ahead, 3), round(abs(oy), 3)))
             if action == 'stop':
