@@ -22,6 +22,7 @@ Usage:
   python3 sweep_response.py
   python3 sweep_response.py --full --workers 16
   python3 sweep_response.py --plots-only
+  python3 sweep_response.py --full --seed-start 7000 --seeds 100 --out ~/ask_or_act/sim/final/response
 """
 import argparse
 import glob
@@ -37,7 +38,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 import simulate_policies as sp
-from generate_scenarios import CONDITIONS, ENVS, FAMILIES, build
+from generate_scenarios import CONDITIONS, ENVS, FAMILIES, build, eval_seeds
 from policy import load_predictor
 
 HOME = os.path.expanduser('~')
@@ -164,6 +165,7 @@ def main():
     ap.add_argument('--conditions', nargs='+', default=['nominal', 'noisy'], choices=list(CONDITIONS))
     ap.add_argument('--methods', nargs='+', default=METHODS)
     ap.add_argument('--seeds', type=int, default=20)
+    ap.add_argument('--seed-start', type=int, default=5000, help='7000 for the final evaluation')
     ap.add_argument('--workers', type=int, default=max(1, (os.cpu_count() or 2) - 2))
     ap.add_argument('--model', default='mlp')
     ap.add_argument('--model-file', default=os.path.join(BASE, 'predictor', 'intent_model.pkl'))
@@ -174,7 +176,6 @@ def main():
 
     if not args.plots_only:
         pargs = SimpleNamespace(p_low=0.2, p_high=0.8, engage_dist=1.0, ask_dist=0.6, smooth_n=5, yield_timeout=8.0)
-        cond_index = {c: i for i, c in enumerate(CONDITIONS)}
         todo = [s for s in settings(args.full) if not os.path.exists(setting_file(args.out, s))]
         print(f'{len(settings(args.full))} settings, {len(todo)} still to run, {args.workers} workers')
         with Pool(args.workers, initializer=_init,
@@ -182,9 +183,8 @@ def main():
             for n, s in enumerate(todo, 1):
                 tasks = []
                 for c in args.conditions:
-                    base = 10000 * cond_index[c] + 5000
                     tasks += [(c, e, f, i, seed, s, args.methods) for e in ENVS for f, i in FAMILIES
-                              for seed in range(base, base + args.seeds)]
+                              for seed in eval_seeds(c, args.seed_start, args.seeds)]
                 rows = [r for chunk in pool.imap_unordered(_run, tasks, chunksize=4) for r in chunk]
                 pd.DataFrame(rows).to_csv(setting_file(args.out, s), index=False)
                 print(f"[{n}/{len(todo)}] done: answer prob {s['response_prob']}, delay {s['response_delay']} s, "

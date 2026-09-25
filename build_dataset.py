@@ -74,17 +74,21 @@ def main():
                     help='seeds per condition for calibration (a small set, as a robot would collect)')
     ap.add_argument('--test-seeds', type=int, default=20, help='seeds per condition for testing')
     ap.add_argument('--conditions', nargs='+', default=list(CONDITIONS), choices=list(CONDITIONS))
+    ap.add_argument('--test-seed-start', type=int, default=3000, help='start of each condition\'s test seed block')
+    ap.add_argument('--only-test', action='store_true', help='write only the test splits (for a fresh final test set)')
     ap.add_argument('--out', default=OUT)
     args = ap.parse_args()
     os.makedirs(args.out, exist_ok=True)
 
     conds = ['nominal'] + [c for c in args.conditions if c != 'nominal']
-    splits = {'train': ('nominal', range(1000, 1000 + args.train_seeds))}
+    splits = {} if args.only_test else {'train': ('nominal', range(1000, 1000 + args.train_seeds))}
     for k, c in enumerate(CONDITIONS):                 # fixed index keeps seed ranges stable
         if c in conds:
             base = 10000 * k
-            splits[f'calib@{c}'] = (c, range(base + 2000, base + 2000 + args.calib_seeds))
-            splits[f'test@{c}'] = (c, range(base + 3000, base + 3000 + args.test_seeds))
+            if not args.only_test:
+                splits[f'calib@{c}'] = (c, range(base + 2000, base + 2000 + args.calib_seeds))
+            ts = args.test_seed_start
+            splits[f'test@{c}'] = (c, range(base + ts, base + ts + args.test_seeds))
     path = os.path.join(args.out, 'dataset.csv')
     cols = ['split', 'condition', 'scenario', 'env', 'family', 'intent', 'label', 'ambiguous',
             't', 'time_to_commit'] + FEATURE_NAMES

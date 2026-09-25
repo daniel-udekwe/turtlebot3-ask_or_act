@@ -75,6 +75,8 @@ def metrics(y, p):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--dir', default=DIR)
+    ap.add_argument('--mlp-seed', type=int, default=0, help='random_state of the neural network')
+    ap.add_argument('--suffix', default='', help='appended to output names, e.g. _seed1')
     args = ap.parse_args()
 
     d = pd.read_csv(os.path.join(args.dir, 'dataset.csv'))
@@ -86,7 +88,7 @@ def main():
     models = {
         'logreg': make_pipeline(StandardScaler(), LogisticRegression(max_iter=2000)),
         'mlp': make_pipeline(StandardScaler(), MLPClassifier(hidden_layer_sizes=(32, 32), max_iter=500,
-                                                             early_stopping=True, random_state=0)),
+                                                             early_stopping=True, random_state=args.mlp_seed)),
     }
     X_train, Y_train = xy(part('train'))
     rows, saved = [], {'feature_names': FEATURE_NAMES, 'conditions': conds, 'models': {}}
@@ -131,12 +133,12 @@ def main():
         for ax in list(axes.flat)[len(conds):]:
             ax.axis('off')
         fig.tight_layout()
-        fig.savefig(os.path.join(args.dir, f'reliability_{name}.png'), dpi=110)
+        fig.savefig(os.path.join(args.dir, f'reliability_{name}{args.suffix}.png'), dpi=110)
         plt.close(fig)
 
     res = pd.DataFrame(rows)
-    res.to_csv(os.path.join(args.dir, 'metrics.csv'), index=False)
-    with open(os.path.join(args.dir, 'intent_model.pkl'), 'wb') as f:
+    res.to_csv(os.path.join(args.dir, f'metrics{args.suffix}.csv'), index=False)
+    with open(os.path.join(args.dir, f'intent_model{args.suffix}.pkl'), 'wb') as f:
         pickle.dump(saved, f)
 
     pd.set_option('display.width', 160)

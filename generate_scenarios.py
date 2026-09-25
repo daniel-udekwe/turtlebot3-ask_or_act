@@ -24,6 +24,7 @@ the intent.
 Usage:
   python3 generate_scenarios.py --seeds 5
   python3 generate_scenarios.py --seeds 5 --conditions nominal slow combined
+  python3 generate_scenarios.py --seeds 5 --conditions nominal noisy --seed-start 7000
 """
 import argparse
 import csv
@@ -62,6 +63,13 @@ CONDITIONS = {
     'noisy': dict(NOMINAL, noise=0.10),                      # poorer tracking
     'combined': dict(NOMINAL, speed=(0.5, 0.8), pause=(3.0, 5.0), noise=0.10),
 }
+
+def eval_seeds(condition, start, n):
+    """Seed range for a condition: each condition has its own block of 10000 seeds,
+    so different conditions never reuse the same random draws."""
+    base = 10000 * list(CONDITIONS).index(condition)
+    return range(base + start, base + start + n)
+
 
 FAMILIES = [
     ('clear_cross', 'crossing'),
@@ -177,12 +185,17 @@ def main():
     ap.add_argument('--seeds', type=int, default=5, help='scenarios per family/intent/env')
     ap.add_argument('--envs', nargs='+', default=['cafe'], choices=sorted(ENVS))
     ap.add_argument('--conditions', nargs='+', default=['nominal'], choices=list(CONDITIONS))
+    ap.add_argument('--seed-start', type=int, default=None,
+                    help='use seeds from eval_seeds(condition, start, n), e.g. 7000 for the final evaluation; '
+                         'default: seeds 0..n-1 (the original Gazebo scenarios)')
     ap.add_argument('--labels-dir', default=DEFAULT_LABELS)
     args = ap.parse_args()
     os.makedirs(args.labels_dir, exist_ok=True)
 
+    seeds = (lambda c: range(args.seeds)) if args.seed_start is None else \
+            (lambda c: eval_seeds(c, args.seed_start, args.seeds))
     labels = [build(e, f, i, s, c) for c in args.conditions for e in args.envs
-              for f, i in FAMILIES for s in range(args.seeds)]
+              for f, i in FAMILIES for s in seeds(c)]
     with open(os.path.join(args.labels_dir, 'labels.json'), 'w') as f:
         json.dump(labels, f, indent=2)
     cols = ['id', 'condition', 'env', 'family', 'intent', 'ambiguous', 'seed', 'human_speed',
