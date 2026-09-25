@@ -1,0 +1,6 @@
+[INFO] [1790353120.400120767] [spawn_entity]: Spawn Entity started
+[INFO] [1790353120.400455618] [spawn_entity]: Loading entity XML from file /home/desktop/burger_novis.sdf
+[INFO] [1790353120.400859297] [spawn_entity]: Waiting for service /spawn_entity, timeout = 120
+[INFO] [1790353120.401029366] [spawn_entity]: Waiting for service /spawn_entity
+[INFO] [1790353121.673127249] [spawn_entity]: Calling service /spawn_entity
+[INFO] [1790353123.281270682] [spawn_entity]: Spawn status: SpawnEntity: Successfully spawned entity [burger]

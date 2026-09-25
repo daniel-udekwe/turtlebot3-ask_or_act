@@ -1,0 +1,1362 @@
+[
+  {
+    "id": "cafe_cc_x_00",
+    "env": "cafe",
+    "family": "clear_cross",
+    "intent": "crossing",
+    "ambiguous": false,
+    "seed": 0,
+    "human_speed": 1.023,
+    "robot_dist_at_commit": 0.353,
+    "release_delay": 2.174,
+    "robot_delay": 0.0,
+    "commit_t": 3.13,
+    "commit_x": 1.592,
+    "start": [
+      1.592,
+      -2.6
+    ],
+    "plan": [
+      {
+        "type": "walk",
+        "to": [
+          1.592,
+          3.5
+        ],
+        "stop": true
+      }
+    ],
+    "waypoints": [
+      [
+        1.592,
+        3.5
+      ]
+    ],
+    "route_shift": 0.092
+  },
+  {
+    "id": "cafe_cc_x_01",
+    "env": "cafe",
+    "family": "clear_cross",
+    "intent": "crossing",
+    "ambiguous": false,
+    "seed": 1,
+    "human_speed": 1.006,
+    "robot_dist_at_commit": 0.032,
+    "release_delay": 5.384,
+    "robot_delay": 0.0,
+    "commit_t": 3.16,
+    "commit_x": 1.33,
+    "start": [
+      1.33,
+      -2.6
+    ],
+    "plan": [
+      {
+        "type": "walk",
+        "to": [
+          1.33,
+          3.5
+        ],
+        "stop": true
+      }
+    ],
+    "waypoints": [
+      [
+        1.33,
+        3.5
+      ]
+    ],
+    "route_shift": -0.17
+  },
+  {
+    "id": "cafe_cc_x_02",
+    "env": "cafe",
+    "family": "clear_cross",
+    "intent": "crossing",
+    "ambiguous": false,
+    "seed": 2,
+    "human_speed": 1.028,
+    "robot_dist_at_commit": 0.208,
+    "release_delay": 4.56,
+    "robot_delay": 0.0,
+    "commit_t": 3.12,
+    "commit_x": 1.31,
+    "start": [
+      1.31,
+      -2.6
+    ],
+    "plan": [
+      {
+        "type": "walk",
+        "to": [
+          1.31,
+          3.5
+        ],
+        "stop": true
+      }
+    ],
+    "waypoints": [
+      [
+        1.31,
+        3.5
+      ]
+    ],
+    "route_shift": -0.19
+  },
+  {
+    "id": "cafe_cc_x_03",
+    "env": "cafe",
+    "family": "clear_cross",
+    "intent": "crossing",
+    "ambiguous": false,
+    "seed": 3,
+    "human_speed": 1.024,
+    "robot_dist_at_commit": 0.214,
+    "release_delay": 4.121,
+    "robot_delay": 0.0,
+    "commit_t": 3.13,
+    "commit_x": 1.381,
+    "start": [
+      1.381,
+      -2.6
+    ],
+    "plan": [
+      {
+        "type": "walk",
+        "to": [
+          1.381,
+          3.5
+        ],
+        "stop": true
+      }
+    ],
+    "waypoints": [
+      [
+        1.381,
+        3.5
+      ]
+    ],
+    "route_shift": -0.119
+  },
+  {
+    "id": "cafe_cc_x_04",
+    "env": "cafe",
+    "family": "clear_cross",
+    "intent": "crossing",
+    "ambiguous": false,
+    "seed": 4,
+    "human_speed": 1.147,
+    "robot_dist_at_commit": 0.012,
+    "release_delay": 5.848,
+    "robot_delay": 0.0,
+    "commit_t": 2.93,
+    "commit_x": 1.308,
+    "start": [
+      1.308,
+      -2.6
+    ],
+    "plan": [
+      {
+        "type": "walk",
+        "to": [
+          1.308,
+          3.5
+        ],
+        "stop": true
+      }
+    ],
+    "waypoints": [
+      [
+        1.308,
+        3.5
+      ]
+    ],
+    "route_shift": -0.192
+  },
+  {
+    "id": "cafe_cn_n_00",
+    "env": "cafe",
+    "family": "clear_noncross",
+    "intent": "not_crossing",
+    "ambiguous": false,
+    "seed": 0,
+    "human_speed": 1.118,
+    "robot_dist_at_commit": 0.337,
+    "release_delay": 2.47,
+    "robot_delay": 0.0,
+    "commit_t": null,
+    "commit_x": null,
+    "start": [
+      1.491,
+      -2.6
+    ],
+    "plan": [
+      {
+        "type": "walk",
+        "to": [
+          -3.5,
+          -3.2
+        ],
+        "stop": true
+      }
+    ],
+    "waypoints": [
+      [
+        -3.5,
+        -3.2
+      ]
+    ],
+    "route_shift": -0.009
+  },
+  {
+    "id": "cafe_cn_n_01",
+    "env": "cafe",
+    "family": "clear_noncross",
+    "intent": "not_crossing",
+    "ambiguous": false,
+    "seed": 1,
+    "human_speed": 0.914,
+    "robot_dist_at_commit": 0.393,
+    "release_delay": 2.508,
+    "robot_delay": 0.0,
+    "commit_t": null,
+    "commit_x": null,
+    "start": [
+      1.376,
+      -2.6
+    ],
+    "plan": [
+      {
+        "type": "walk",
+        "to": [
+          -3.5,
+          -3.2
+        ],
+        "stop": true
+      }
+    ],
+    "waypoints": [
+      [
+        -3.5,
+        -3.2
+      ]
+    ],
+    "route_shift": -0.124
+  },
+  {
+    "id": "cafe_cn_n_02",
+    "env": "cafe",
+    "family": "clear_noncross",
+    "intent": "not_crossing",
+    "ambiguous": false,
+    "seed": 2,
+    "human_speed": 0.939,
+    "robot_dist_at_commit": 0.093,
+    "release_delay": 2.743,
+    "robot_delay": 0.0,
+    "commit_t": null,
+    "commit_x": null,
+    "start": [
+      1.462,
+      -2.6
+    ],
+    "plan": [
+      {
+        "type": "walk",
+        "to": [
+          -3.5,
+          -3.2
+        ],
+        "stop": true
+      }
+    ],
+    "waypoints": [
+      [
+        -3.5,
+        -3.2
+      ]
+    ],
+    "route_shift": -0.038
+  },
+  {
+    "id": "cafe_cn_n_03",
+    "env": "cafe",
+    "family": "clear_noncross",
+    "intent": "not_crossing",
+    "ambiguous": false,
+    "seed": 3,
+    "human_speed": 1.064,
+    "robot_dist_at_commit": 0.21,
+    "release_delay": 0.438,
+    "robot_delay": 0.0,
+    "commit_t": null,
+    "commit_x": null,
+    "start": [
+      1.476,
+      -2.6
+    ],
+    "plan": [
+      {
+        "type": "walk",
+        "to": [
+          -3.5,
+          -3.2
+        ],
+        "stop": true
+      }
+    ],
+    "waypoints": [
+      [
+        -3.5,
+        -3.2
+      ]
+    ],
+    "route_shift": -0.024
+  },
+  {
+    "id": "cafe_cn_n_04",
+    "env": "cafe",
+    "family": "clear_noncross",
+    "intent": "not_crossing",
+    "ambiguous": false,
+    "seed": 4,
+    "human_speed": 1.086,
+    "robot_dist_at_commit": 0.271,
+    "release_delay": 0.083,
+    "robot_delay": 0.0,
+    "commit_t": null,
+    "commit_x": null,
+    "start": [
+      1.505,
+      -2.6
+    ],
+    "plan": [
+      {
+        "type": "walk",
+        "to": [
+          -3.5,
+          -3.2
+        ],
+        "stop": true
+      }
+    ],
+    "waypoints": [
+      [
+        -3.5,
+        -3.2
+      ]
+    ],
+    "route_shift": 0.005
+  },
+  {
+    "id": "cafe_hs_x_00",
+    "env": "cafe",
+    "family": "hesitant",
+    "intent": "crossing",
+    "ambiguous": true,
+    "seed": 0,
+    "human_speed": 1.098,
+    "robot_dist_at_commit": 0.144,
+    "release_delay": 0.75,
+    "robot_delay": 0.0,
+    "commit_t": 6.4,
+    "commit_x": 1.469,
+    "start": [
+      1.469,
+      -2.6
+    ],
+    "plan": [
+      {
+        "type": "walk",
+        "to": [
+          1.469,
+          -0.99
+        ],
+        "stop": true
+      },
+      {
+        "type": "wait",
+        "duration": 2.249
+      },
+      {
+        "type": "walk",
+        "to": [
+          1.469,
+          3.5
+        ],
+        "stop": true
+      }
+    ],
+    "waypoints": [
+      [
+        1.469,
+        -0.99
+      ],
+      [
+        1.469,
+        3.5
+      ]
+    ],
+    "route_shift": -0.031,
+    "gap": 0.99,
+    "pause": 2.249
+  },
+  {
+    "id": "cafe_hs_x_01",
+    "env": "cafe",
+    "family": "hesitant",
+    "intent": "crossing",
+    "ambiguous": true,
+    "seed": 1,
+    "human_speed": 0.994,
+    "robot_dist_at_commit": 0.25,
+    "release_delay": 0.573,
+    "robot_delay": 0.0,
+    "commit_t": 6.44,
+    "commit_x": 1.388,
+    "start": [
+      1.388,
+      -2.6
+    ],
+    "plan": [
+      {
+        "type": "walk",
+        "to": [
+          1.388,
+          -0.967
+        ],
+        "stop": true
+      },
+      {
+        "type": "wait",
+        "duration": 2.165
+      },
+      {
+        "type": "walk",
+        "to": [
+          1.388,
+          3.5
+        ],
+        "stop": true
+      }
+    ],
+    "waypoints": [
+      [
+        1.388,
+        -0.967
+      ],
+      [
+        1.388,
+        3.5
+      ]
+    ],
+    "route_shift": -0.112,
+    "gap": 0.967,
+    "pause": 2.165
+  },
+  {
+    "id": "cafe_hs_x_02",
+    "env": "cafe",
+    "family": "hesitant",
+    "intent": "crossing",
+    "ambiguous": true,
+    "seed": 2,
+    "human_speed": 1.154,
+    "robot_dist_at_commit": 0.099,
+    "release_delay": 0.0,
+    "robot_delay": 0.333,
+    "commit_t": 6.51,
+    "commit_x": 1.689,
+    "start": [
+      1.689,
+      -2.6
+    ],
+    "plan": [
+      {
+        "type": "walk",
+        "to": [
+          1.689,
+          -0.972
+        ],
+        "stop": true
+      },
+      {
+        "type": "wait",
+        "duration": 2.362
+      },
+      {
+        "type": "walk",
+        "to": [
+          1.689,
+          3.5
+        ],
+        "stop": true
+      }
+    ],
+    "waypoints": [
+      [
+        1.689,
+        -0.972
+      ],
+      [
+        1.689,
+        3.5
+      ]
+    ],
+    "route_shift": 0.189,
+    "gap": 0.972,
+    "pause": 2.362
+  },
+  {
+    "id": "cafe_hs_x_03",
+    "env": "cafe",
+    "family": "hesitant",
+    "intent": "crossing",
+    "ambiguous": true,
+    "seed": 3,
+    "human_speed": 1.035,
+    "robot_dist_at_commit": 0.14,
+    "release_delay": 0.0,
+    "robot_delay": 0.109,
+    "commit_t": 6.62,
+    "commit_x": 1.588,
+    "start": [
+      1.588,
+      -2.6
+    ],
+    "plan": [
+      {
+        "type": "walk",
+        "to": [
+          1.588,
+          -1.167
+        ],
+        "stop": true
+      },
+      {
+        "type": "wait",
+        "duration": 2.42
+      },
+      {
+        "type": "walk",
+        "to": [
+          1.588,
+          3.5
+        ],
+        "stop": true
+      }
+    ],
+    "waypoints": [
+      [
+        1.588,
+        -1.167
+      ],
+      [
+        1.588,
+        3.5
+      ]
+    ],
+    "route_shift": 0.088,
+    "gap": 1.167,
+    "pause": 2.42
+  },
+  {
+    "id": "cafe_hs_x_04",
+    "env": "cafe",
+    "family": "hesitant",
+    "intent": "crossing",
+    "ambiguous": true,
+    "seed": 4,
+    "human_speed": 1.154,
+    "robot_dist_at_commit": 0.025,
+    "release_delay": 2.032,
+    "robot_delay": 0.0,
+    "commit_t": 6.63,
+    "commit_x": 1.316,
+    "start": [
+      1.316,
+      -2.6
+    ],
+    "plan": [
+      {
+        "type": "walk",
+        "to": [
+          1.316,
+          -1.077
+        ],
+        "stop": true
+      },
+      {
+        "type": "wait",
+        "duration": 2.43
+      },
+      {
+        "type": "walk",
+        "to": [
+          1.316,
+          3.5
+        ],
+        "stop": true
+      }
+    ],
+    "waypoints": [
+      [
+        1.316,
+        -1.077
+      ],
+      [
+        1.316,
+        3.5
+      ]
+    ],
+    "route_shift": -0.184,
+    "gap": 1.077,
+    "pause": 2.43
+  },
+  {
+    "id": "cafe_hs_n_00",
+    "env": "cafe",
+    "family": "hesitant",
+    "intent": "not_crossing",
+    "ambiguous": true,
+    "seed": 0,
+    "human_speed": 1.098,
+    "robot_dist_at_commit": 0.144,
+    "release_delay": 0.75,
+    "robot_delay": 0.0,
+    "commit_t": 6.4,
+    "commit_x": 1.469,
+    "start": [
+      1.469,
+      -2.6
+    ],
+    "plan": [
+      {
+        "type": "walk",
+        "to": [
+          1.469,
+          -0.99
+        ],
+        "stop": true
+      },
+      {
+        "type": "wait",
+        "duration": 2.249
+      },
+      {
+        "type": "walk",
+        "to": [
+          1.469,
+          -2.6
+        ],
+        "stop": true
+      }
+    ],
+    "waypoints": [
+      [
+        1.469,
+        -0.99
+      ],
+      [
+        1.469,
+        -2.6
+      ]
+    ],
+    "route_shift": -0.031,
+    "gap": 0.99,
+    "pause": 2.249
+  },
+  {
+    "id": "cafe_hs_n_01",
+    "env": "cafe",
+    "family": "hesitant",
+    "intent": "not_crossing",
+    "ambiguous": true,
+    "seed": 1,
+    "human_speed": 0.994,
+    "robot_dist_at_commit": 0.25,
+    "release_delay": 0.573,
+    "robot_delay": 0.0,
+    "commit_t": 6.44,
+    "commit_x": 1.388,
+    "start": [
+      1.388,
+      -2.6
+    ],
+    "plan": [
+      {
+        "type": "walk",
+        "to": [
+          1.388,
+          -0.967
+        ],
+        "stop": true
+      },
+      {
+        "type": "wait",
+        "duration": 2.165
+      },
+      {
+        "type": "walk",
+        "to": [
+          1.388,
+          -2.6
+        ],
+        "stop": true
+      }
+    ],
+    "waypoints": [
+      [
+        1.388,
+        -0.967
+      ],
+      [
+        1.388,
+        -2.6
+      ]
+    ],
+    "route_shift": -0.112,
+    "gap": 0.967,
+    "pause": 2.165
+  },
+  {
+    "id": "cafe_hs_n_02",
+    "env": "cafe",
+    "family": "hesitant",
+    "intent": "not_crossing",
+    "ambiguous": true,
+    "seed": 2,
+    "human_speed": 1.154,
+    "robot_dist_at_commit": 0.099,
+    "release_delay": 0.0,
+    "robot_delay": 0.333,
+    "commit_t": 6.51,
+    "commit_x": 1.689,
+    "start": [
+      1.689,
+      -2.6
+    ],
+    "plan": [
+      {
+        "type": "walk",
+        "to": [
+          1.689,
+          -0.972
+        ],
+        "stop": true
+      },
+      {
+        "type": "wait",
+        "duration": 2.362
+      },
+      {
+        "type": "walk",
+        "to": [
+          1.689,
+          -2.6
+        ],
+        "stop": true
+      }
+    ],
+    "waypoints": [
+      [
+        1.689,
+        -0.972
+      ],
+      [
+        1.689,
+        -2.6
+      ]
+    ],
+    "route_shift": 0.189,
+    "gap": 0.972,
+    "pause": 2.362
+  },
+  {
+    "id": "cafe_hs_n_03",
+    "env": "cafe",
+    "family": "hesitant",
+    "intent": "not_crossing",
+    "ambiguous": true,
+    "seed": 3,
+    "human_speed": 1.035,
+    "robot_dist_at_commit": 0.14,
+    "release_delay": 0.0,
+    "robot_delay": 0.109,
+    "commit_t": 6.62,
+    "commit_x": 1.588,
+    "start": [
+      1.588,
+      -2.6
+    ],
+    "plan": [
+      {
+        "type": "walk",
+        "to": [
+          1.588,
+          -1.167
+        ],
+        "stop": true
+      },
+      {
+        "type": "wait",
+        "duration": 2.42
+      },
+      {
+        "type": "walk",
+        "to": [
+          1.588,
+          -2.6
+        ],
+        "stop": true
+      }
+    ],
+    "waypoints": [
+      [
+        1.588,
+        -1.167
+      ],
+      [
+        1.588,
+        -2.6
+      ]
+    ],
+    "route_shift": 0.088,
+    "gap": 1.167,
+    "pause": 2.42
+  },
+  {
+    "id": "cafe_hs_n_04",
+    "env": "cafe",
+    "family": "hesitant",
+    "intent": "not_crossing",
+    "ambiguous": true,
+    "seed": 4,
+    "human_speed": 1.154,
+    "robot_dist_at_commit": 0.025,
+    "release_delay": 2.032,
+    "robot_delay": 0.0,
+    "commit_t": 6.63,
+    "commit_x": 1.316,
+    "start": [
+      1.316,
+      -2.6
+    ],
+    "plan": [
+      {
+        "type": "walk",
+        "to": [
+          1.316,
+          -1.077
+        ],
+        "stop": true
+      },
+      {
+        "type": "wait",
+        "duration": 2.43
+      },
+      {
+        "type": "walk",
+        "to": [
+          1.316,
+          -2.6
+        ],
+        "stop": true
+      }
+    ],
+    "waypoints": [
+      [
+        1.316,
+        -1.077
+      ],
+      [
+        1.316,
+        -2.6
+      ]
+    ],
+    "route_shift": -0.184,
+    "gap": 1.077,
+    "pause": 2.43
+  },
+  {
+    "id": "cafe_lt_x_00",
+    "env": "cafe",
+    "family": "late_turn",
+    "intent": "crossing",
+    "ambiguous": true,
+    "seed": 0,
+    "human_speed": 1.025,
+    "robot_dist_at_commit": 0.035,
+    "release_delay": 3.422,
+    "robot_delay": 0.0,
+    "commit_t": 3.33,
+    "commit_x": 1.65,
+    "start": [
+      1.65,
+      -2.6
+    ],
+    "plan": [
+      {
+        "type": "walk",
+        "to": [
+          1.65,
+          -0.601
+        ],
+        "stop": false
+      },
+      {
+        "type": "walk",
+        "to": [
+          1.65,
+          3.5
+        ],
+        "stop": true
+      }
+    ],
+    "waypoints": [
+      [
+        1.65,
+        -0.601
+      ],
+      [
+        1.65,
+        3.5
+      ]
+    ],
+    "route_shift": 0.15,
+    "gap": 0.601
+  },
+  {
+    "id": "cafe_lt_x_01",
+    "env": "cafe",
+    "family": "late_turn",
+    "intent": "crossing",
+    "ambiguous": true,
+    "seed": 1,
+    "human_speed": 1.199,
+    "robot_dist_at_commit": 0.387,
+    "release_delay": 2.936,
+    "robot_delay": 0.0,
+    "commit_t": 3.1,
+    "commit_x": 1.426,
+    "start": [
+      1.426,
+      -2.6
+    ],
+    "plan": [
+      {
+        "type": "walk",
+        "to": [
+          1.426,
+          -0.472
+        ],
+        "stop": false
+      },
+      {
+        "type": "walk",
+        "to": [
+          1.426,
+          3.5
+        ],
+        "stop": true
+      }
+    ],
+    "waypoints": [
+      [
+        1.426,
+        -0.472
+      ],
+      [
+        1.426,
+        3.5
+      ]
+    ],
+    "route_shift": -0.074,
+    "gap": 0.472
+  },
+  {
+    "id": "cafe_lt_x_02",
+    "env": "cafe",
+    "family": "late_turn",
+    "intent": "crossing",
+    "ambiguous": true,
+    "seed": 2,
+    "human_speed": 0.913,
+    "robot_dist_at_commit": 0.091,
+    "release_delay": 4.345,
+    "robot_delay": 0.0,
+    "commit_t": 3.55,
+    "commit_x": 1.388,
+    "start": [
+      1.388,
+      -2.6
+    ],
+    "plan": [
+      {
+        "type": "walk",
+        "to": [
+          1.388,
+          -0.434
+        ],
+        "stop": false
+      },
+      {
+        "type": "walk",
+        "to": [
+          1.388,
+          3.5
+        ],
+        "stop": true
+      }
+    ],
+    "waypoints": [
+      [
+        1.388,
+        -0.434
+      ],
+      [
+        1.388,
+        3.5
+      ]
+    ],
+    "route_shift": -0.112,
+    "gap": 0.434
+  },
+  {
+    "id": "cafe_lt_x_03",
+    "env": "cafe",
+    "family": "late_turn",
+    "intent": "crossing",
+    "ambiguous": true,
+    "seed": 3,
+    "human_speed": 0.9,
+    "robot_dist_at_commit": 0.013,
+    "release_delay": 3.908,
+    "robot_delay": 0.0,
+    "commit_t": 3.58,
+    "commit_x": 1.539,
+    "start": [
+      1.539,
+      -2.6
+    ],
+    "plan": [
+      {
+        "type": "walk",
+        "to": [
+          1.539,
+          -0.64
+        ],
+        "stop": false
+      },
+      {
+        "type": "walk",
+        "to": [
+          1.539,
+          3.5
+        ],
+        "stop": true
+      }
+    ],
+    "waypoints": [
+      [
+        1.539,
+        -0.64
+      ],
+      [
+        1.539,
+        3.5
+      ]
+    ],
+    "route_shift": 0.039,
+    "gap": 0.64
+  },
+  {
+    "id": "cafe_lt_x_04",
+    "env": "cafe",
+    "family": "late_turn",
+    "intent": "crossing",
+    "ambiguous": true,
+    "seed": 4,
+    "human_speed": 1.058,
+    "robot_dist_at_commit": 0.074,
+    "release_delay": 3.26,
+    "robot_delay": 0.0,
+    "commit_t": 3.29,
+    "commit_x": 1.647,
+    "start": [
+      1.647,
+      -2.6
+    ],
+    "plan": [
+      {
+        "type": "walk",
+        "to": [
+          1.647,
+          -0.451
+        ],
+        "stop": false
+      },
+      {
+        "type": "walk",
+        "to": [
+          1.647,
+          3.5
+        ],
+        "stop": true
+      }
+    ],
+    "waypoints": [
+      [
+        1.647,
+        -0.451
+      ],
+      [
+        1.647,
+        3.5
+      ]
+    ],
+    "route_shift": 0.147,
+    "gap": 0.451
+  },
+  {
+    "id": "cafe_lt_n_00",
+    "env": "cafe",
+    "family": "late_turn",
+    "intent": "not_crossing",
+    "ambiguous": true,
+    "seed": 0,
+    "human_speed": 1.025,
+    "robot_dist_at_commit": 0.035,
+    "release_delay": 3.422,
+    "robot_delay": 0.0,
+    "commit_t": 3.33,
+    "commit_x": 1.65,
+    "start": [
+      1.65,
+      -2.6
+    ],
+    "plan": [
+      {
+        "type": "walk",
+        "to": [
+          1.65,
+          -0.601
+        ],
+        "stop": false
+      },
+      {
+        "type": "walk",
+        "to": [
+          3.3,
+          -2.5
+        ],
+        "stop": true
+      }
+    ],
+    "waypoints": [
+      [
+        1.65,
+        -0.601
+      ],
+      [
+        3.3,
+        -2.5
+      ]
+    ],
+    "route_shift": 0.15,
+    "gap": 0.601
+  },
+  {
+    "id": "cafe_lt_n_01",
+    "env": "cafe",
+    "family": "late_turn",
+    "intent": "not_crossing",
+    "ambiguous": true,
+    "seed": 1,
+    "human_speed": 1.199,
+    "robot_dist_at_commit": 0.387,
+    "release_delay": 2.936,
+    "robot_delay": 0.0,
+    "commit_t": 3.1,
+    "commit_x": 1.426,
+    "start": [
+      1.426,
+      -2.6
+    ],
+    "plan": [
+      {
+        "type": "walk",
+        "to": [
+          1.426,
+          -0.472
+        ],
+        "stop": false
+      },
+      {
+        "type": "walk",
+        "to": [
+          3.3,
+          -2.5
+        ],
+        "stop": true
+      }
+    ],
+    "waypoints": [
+      [
+        1.426,
+        -0.472
+      ],
+      [
+        3.3,
+        -2.5
+      ]
+    ],
+    "route_shift": -0.074,
+    "gap": 0.472
+  },
+  {
+    "id": "cafe_lt_n_02",
+    "env": "cafe",
+    "family": "late_turn",
+    "intent": "not_crossing",
+    "ambiguous": true,
+    "seed": 2,
+    "human_speed": 0.913,
+    "robot_dist_at_commit": 0.091,
+    "release_delay": 4.345,
+    "robot_delay": 0.0,
+    "commit_t": 3.55,
+    "commit_x": 1.388,
+    "start": [
+      1.388,
+      -2.6
+    ],
+    "plan": [
+      {
+        "type": "walk",
+        "to": [
+          1.388,
+          -0.434
+        ],
+        "stop": false
+      },
+      {
+        "type": "walk",
+        "to": [
+          3.3,
+          -2.5
+        ],
+        "stop": true
+      }
+    ],
+    "waypoints": [
+      [
+        1.388,
+        -0.434
+      ],
+      [
+        3.3,
+        -2.5
+      ]
+    ],
+    "route_shift": -0.112,
+    "gap": 0.434
+  },
+  {
+    "id": "cafe_lt_n_03",
+    "env": "cafe",
+    "family": "late_turn",
+    "intent": "not_crossing",
+    "ambiguous": true,
+    "seed": 3,
+    "human_speed": 0.9,
+    "robot_dist_at_commit": 0.013,
+    "release_delay": 3.908,
+    "robot_delay": 0.0,
+    "commit_t": 3.58,
+    "commit_x": 1.539,
+    "start": [
+      1.539,
+      -2.6
+    ],
+    "plan": [
+      {
+        "type": "walk",
+        "to": [
+          1.539,
+          -0.64
+        ],
+        "stop": false
+      },
+      {
+        "type": "walk",
+        "to": [
+          3.3,
+          -2.5
+        ],
+        "stop": true
+      }
+    ],
+    "waypoints": [
+      [
+        1.539,
+        -0.64
+      ],
+      [
+        3.3,
+        -2.5
+      ]
+    ],
+    "route_shift": 0.039,
+    "gap": 0.64
+  },
+  {
+    "id": "cafe_lt_n_04",
+    "env": "cafe",
+    "family": "late_turn",
+    "intent": "not_crossing",
+    "ambiguous": true,
+    "seed": 4,
+    "human_speed": 1.058,
+    "robot_dist_at_commit": 0.074,
+    "release_delay": 3.26,
+    "robot_delay": 0.0,
+    "commit_t": 3.29,
+    "commit_x": 1.647,
+    "start": [
+      1.647,
+      -2.6
+    ],
+    "plan": [
+      {
+        "type": "walk",
+        "to": [
+          1.647,
+          -0.451
+        ],
+        "stop": false
+      },
+      {
+        "type": "walk",
+        "to": [
+          3.3,
+          -2.5
+        ],
+        "stop": true
+      }
+    ],
+    "waypoints": [
+      [
+        1.647,
+        -0.451
+      ],
+      [
+        3.3,
+        -2.5
+      ]
+    ],
+    "route_shift": 0.147,
+    "gap": 0.451
+  }
+]
