@@ -1,1 +1,7 @@
 runs/
+__pycache__/
+*.pyc
+predictor/
+sim/
+worlds/
+gazebo_params.yaml
