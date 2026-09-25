@@ -1,0 +1,35 @@
+{
+  "outcome": "reached goal",
+  "duration": 31.6,
+  "min_dist": 0.036,
+  "min_info": {
+    "t": 8.85,
+    "human": [
+      1.308,
+      0.083
+    ],
+    "robot": [
+      1.342,
+      0.075
+    ]
+  },
+  "crossings": [
+    {
+      "human": 1,
+      "t": 8.8,
+      "x": 1.308,
+      "robot_x": 1.35
+    }
+  ],
+  "line_closest": {
+    "1": {
+      "t": 8.8,
+      "x": 1.308,
+      "abs_y": 0.026,
+      "robot_x": 1.35
+    }
+  },
+  "speed": 0.18,
+  "human_release_delay": 5.848,
+  "robot_start_delay": 0.0
+}

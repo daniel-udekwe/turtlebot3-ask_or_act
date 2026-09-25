@@ -1,0 +1,7 @@
+[INFO] [1790353797.038560751] [line_controller]: Line controller ready, goal=(-2.9, 0.0), speed=0.18
+[INFO] [1790353797.039455259] [line_controller]: Robot at (2.90, 0.10), starting in 2.0 s
+[INFO] [1790353799.091762053] [line_controller]: Episode started: humans released in 2.03 s, robot starts in 0.00 s
+[INFO] [1790353801.151027234] [line_controller]: Humans released at t=2.05 s
+[INFO] [1790353807.924737280] [line_controller]: Human 1 crossed the line at t=8.70 s, x=1.32; robot at x=1.37 (+0.06 m from crossing)
+[INFO] [1790353830.950544811] [line_controller]: Episode finished (reached goal): duration 31.60 s, min robot-human distance 0.05 m
+[INFO] [1790353830.950764269] [line_controller]: Closest approach at t=8.75 s: human [1.316, 0.083], robot [1.364, 0.075]
