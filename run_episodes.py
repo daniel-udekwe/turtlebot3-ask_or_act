@@ -132,7 +132,7 @@ def run_episode(label, world, env, ep_dir, gui, args):
                         '-timeout', '120'],
                        env=env, stdout=logs['spawn'], stderr=subprocess.STDOUT, timeout=180, check=True)
         peds = subprocess.Popen(['python3', PEDESTRIANS, '--ros-args', '-p', 'use_sim_time:=true',
-                                 '-p', f"scenario_id:={label['id']}",
+                                 '-p', f"scenario_id:={label['id']}", '-p', f'labels_file:={args.labels}',
                                  '-p', f'response_delay:={args.response_delay}',
                                  '-p', f'response_prob:={args.response_prob}',
                                  '-p', f'answer_accuracy:={args.answer_accuracy}'],
@@ -164,6 +164,7 @@ def run_episode(label, world, env, ep_dir, gui, args):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--only', default='*', help="scenario id pattern, e.g. 'cafe_hs_*'")
+    ap.add_argument('--labels', default=os.path.join(SCEN, 'labels.json'), help='scenario labels file')
     ap.add_argument('--out', default=os.path.join(BASE, 'runs'))
     ap.add_argument('--policy', default='always_act',
                     choices=['always_act', 'always_cautious', 'always_ask', 'threshold', 'oracle'])
@@ -184,7 +185,8 @@ def main():
     if not args.method:
         args.method = args.policy if args.policy != 'threshold' else (
             'threshold:raw' if args.calibration == 'raw' else f'threshold:{args.calibration}@{args.calib_condition}')
-    labels = json.load(open(os.path.join(SCEN, 'labels.json')))
+    args.labels = os.path.abspath(os.path.expanduser(args.labels))
+    labels = json.load(open(args.labels))
     labels = [l for l in labels if fnmatch.fnmatch(l['id'], args.only)]
     env, wrapper = gazebo_env()
     os.makedirs(args.out, exist_ok=True)
