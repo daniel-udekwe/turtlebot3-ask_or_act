@@ -21,6 +21,7 @@ the intent.
 
 Usage:
   python3 generate_scenarios.py --seeds 5
+  python3 generate_scenarios.py --seeds 5 --conditions nominal slow combined
 """
 import argparse
 import csv
@@ -46,6 +47,19 @@ ENVS = {
     ),
 }
 
+# Experimental conditions. 'nominal' is the training distribution; the others are
+# distribution shifts used to test calibration. `noise` is the tracking noise (m)
+# used by build_dataset.py; the rest change how pedestrians behave.
+NOMINAL = dict(speed=(0.8, 1.2), pause=(1.5, 2.5), hes_gap=(0.8, 1.2), late_gap=(0.4, 0.7), noise=0.03)
+CONDITIONS = {
+    'nominal': NOMINAL,
+    'slow': dict(NOMINAL, speed=(0.5, 0.8)),                 # slower walkers
+    'fast': dict(NOMINAL, speed=(1.2, 1.6)),                 # faster walkers
+    'long_pause': dict(NOMINAL, pause=(3.0, 5.0)),           # longer hesitation
+    'noisy': dict(NOMINAL, noise=0.10),                      # poorer tracking
+    'combined': dict(NOMINAL, speed=(0.5, 0.8), pause=(3.0, 5.0), noise=0.10),
+}
+
 FAMILIES = [
     ('clear_cross', 'crossing'),
     ('clear_noncross', 'not_crossing'),
@@ -67,7 +81,7 @@ def point_at_y(a, b, y):
     return (a[0] + t * (b[0] - a[0]), y)
 
 
-def plans(env, family, rng):
+def plans(env, family, rng, cond):
     """Return (start, params, plan_for(intent)). Random draws are shared by both intents."""
     dx = rng.uniform(-0.2, 0.2)                    # small shift of the route, for variety
     S = (env['south'][0] + dx, env['south'][1])
@@ -78,14 +92,14 @@ def plans(env, family, rng):
     if family == 'clear_noncross':
         return S, params, lambda intent: [walk(env['west'])]
     if family == 'hesitant':
-        gap = rng.uniform(0.8, 1.2)                # stops this far before the line (m)
-        pause = rng.uniform(1.5, 2.5)              # pause duration (s)
+        gap = rng.uniform(*cond['hes_gap'])        # stops this far before the line (m)
+        pause = rng.uniform(*cond['pause'])        # pause duration (s)
         A = point_at_y(S, N, -gap)
         params.update(gap=round(gap, 3), pause=round(pause, 3))
         return S, params, lambda intent: [walk(A), dict(type='wait', duration=round(pause, 3)),
                                           walk(N if intent == 'crossing' else S)]
     if family == 'late_turn':
-        gap = rng.uniform(0.4, 0.7)                # turns this far before the line (m)
+        gap = rng.uniform(*cond['late_gap'])       # turns this far before the line (m)
         B = point_at_y(S, N, -gap)
         params.update(gap=round(gap, 3))
         return S, params, lambda intent: [walk(B, stop=False),
@@ -100,12 +114,13 @@ def offsets(commit_t, commit_x, d_commit):
     return (0.0, rel) if rel >= 0.0 else (-rel, 0.0)                   # (release_delay, robot_delay)
 
 
-def build(env_name, family, intent, seed):
+def build(env_name, family, intent, seed, condition='nominal'):
     env = ENVS[env_name]
+    cond = CONDITIONS[condition]
     rng = random.Random(f'{env_name}-{family}-{seed}')     # same draws for both intents
-    speed = rng.uniform(0.8, 1.2)                           # walking speed (m/s)
+    speed = rng.uniform(*cond['speed'])                     # walking speed (m/s)
     d_commit = rng.uniform(0.0, 0.4)                        # robot distance to crossing point at commit
-    start, params, plan_for = plans(env, family, rng)
+    start, params, plan_for = plans(env, family, rng, cond)
     plan = plan_for(intent)
 
     if family == 'clear_noncross':
@@ -116,8 +131,10 @@ def build(env_name, family, intent, seed):
         release, robot_delay = offsets(commit[0], commit[1], d_commit)
 
     sid = f"{env_name}_{SHORT[family]}_{SHORT[intent]}_{seed:02d}"
+    if condition != 'nominal':
+        sid += f'_{condition}'
     return dict(
-        id=sid, env=env_name, family=family, intent=intent,
+        id=sid, env=env_name, family=family, intent=intent, condition=condition,
         ambiguous=family in ('hesitant', 'late_turn'), seed=seed,
         human_speed=round(speed, 3), robot_dist_at_commit=round(d_commit, 3),
         release_delay=round(release, 3), robot_delay=round(robot_delay, 3),
@@ -131,14 +148,16 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--seeds', type=int, default=5, help='scenarios per family/intent/env')
     ap.add_argument('--envs', nargs='+', default=['cafe'], choices=sorted(ENVS))
+    ap.add_argument('--conditions', nargs='+', default=['nominal'], choices=list(CONDITIONS))
     ap.add_argument('--labels-dir', default=DEFAULT_LABELS)
     args = ap.parse_args()
     os.makedirs(args.labels_dir, exist_ok=True)
 
-    labels = [build(e, f, i, s) for e in args.envs for f, i in FAMILIES for s in range(args.seeds)]
+    labels = [build(e, f, i, s, c) for c in args.conditions for e in args.envs
+              for f, i in FAMILIES for s in range(args.seeds)]
     with open(os.path.join(args.labels_dir, 'labels.json'), 'w') as f:
         json.dump(labels, f, indent=2)
-    cols = ['id', 'env', 'family', 'intent', 'ambiguous', 'seed', 'human_speed',
+    cols = ['id', 'condition', 'env', 'family', 'intent', 'ambiguous', 'seed', 'human_speed',
             'robot_dist_at_commit', 'release_delay', 'robot_delay', 'commit_t', 'commit_x']
     with open(os.path.join(args.labels_dir, 'manifest.csv'), 'w', newline='') as f:
         w = csv.DictWriter(f, fieldnames=cols, extrasaction='ignore')

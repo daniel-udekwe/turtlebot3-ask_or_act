@@ -3,9 +3,12 @@
 Train, calibrate, and evaluate intent predictors for the Ask-or-Act study.
 
 Models:       logistic regression, small neural network (MLP)
-Calibration:  none (raw), temperature scaling, isotonic regression (fit on the calib split)
-Metrics:      expected calibration error (ECE), Brier score, log loss, AUC, accuracy,
-              on the test split, overall and for clear vs ambiguous scenarios
+Training:     nominal condition only
+Calibration:  none (raw); temperature scaling and isotonic regression fitted on the
+              nominal calibration set ("stale" under shift) or on each shifted
+              condition's own calibration set ("recalibrated")
+Metrics:      ECE, Brier score, log loss, AUC, accuracy on each condition's test set,
+              overall and for clear vs ambiguous scenarios
 Outputs (in ~/ask_or_act/predictor/):
   metrics.csv              one row per model / calibration / subset
   reliability_<model>.png  reliability diagrams on the test split
@@ -23,52 +26,17 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from scipy.optimize import minimize_scalar
-from sklearn.isotonic import IsotonicRegression
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import brier_score_loss, log_loss, roc_auc_score
 from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
+from calibration import EPS, IsotonicCalibrator, TemperatureScaler
 from intent_features import FEATURE_NAMES
 
 HOME = os.path.expanduser('~')
 DIR = os.path.join(HOME, 'ask_or_act', 'predictor')
-EPS = 1e-6
-
-
-def logit(p):
-    p = np.clip(p, EPS, 1 - EPS)
-    return np.log(p / (1 - p))
-
-
-def sigmoid(z):
-    return 1.0 / (1.0 + np.exp(-z))
-
-
-class TemperatureScaler:
-    """Divides the model's logit by a single temperature T fitted to minimise log loss."""
-    def fit(self, p, y):
-        z = logit(p)
-        res = minimize_scalar(lambda lt: log_loss(y, np.clip(sigmoid(z / np.exp(lt)), EPS, 1 - EPS)),
-                              bounds=(-3, 3), method='bounded')
-        self.T = float(np.exp(res.x))
-        return self
-
-    def transform(self, p):
-        return sigmoid(logit(p) / self.T)
-
-
-class IsotonicCalibrator:
-    def fit(self, p, y):
-        self.iso = IsotonicRegression(y_min=0.0, y_max=1.0, out_of_bounds='clip').fit(p, y)
-        return self
-
-    def transform(self, p):
-        return np.clip(self.iso.predict(p), EPS, 1 - EPS)
-
-
 def ece(y, p, bins=15):
     edges = np.linspace(0, 1, bins + 1)
     idx = np.clip(np.digitize(p, edges) - 1, 0, bins - 1)
@@ -106,43 +74,56 @@ def main():
     args = ap.parse_args()
 
     d = pd.read_csv(os.path.join(args.dir, 'dataset.csv'))
-    parts = {s: d[d.split == s] for s in ('train', 'calib', 'test')}
-    X = {s: v[FEATURE_NAMES].to_numpy() for s, v in parts.items()}
-    Y = {s: v['label'].to_numpy() for s, v in parts.items()}
-    amb_test = parts['test']['ambiguous'].astype(str).str.lower().eq('true').to_numpy()
+    conds = [c for c in d['condition'].unique() if f'test@{c}' in set(d['split'])]
+    conds = ['nominal'] + [c for c in conds if c != 'nominal']
+    part = lambda split: d[d.split == split]
+    xy = lambda df: (df[FEATURE_NAMES].to_numpy(), df['label'].to_numpy())
 
     models = {
         'logreg': make_pipeline(StandardScaler(), LogisticRegression(max_iter=2000)),
         'mlp': make_pipeline(StandardScaler(), MLPClassifier(hidden_layer_sizes=(32, 32), max_iter=500,
                                                              early_stopping=True, random_state=0)),
     }
-    rows, saved = [], {'feature_names': FEATURE_NAMES, 'models': {}}
+    X_train, Y_train = xy(part('train'))
+    rows, saved = [], {'feature_names': FEATURE_NAMES, 'conditions': conds, 'models': {}}
     for name, model in models.items():
-        model.fit(X['train'], Y['train'])
-        p_cal = model.predict_proba(X['calib'])[:, 1]
-        p_test_raw = model.predict_proba(X['test'])[:, 1]
-        calibrators = {'raw': None,
-                       'temperature': TemperatureScaler().fit(p_cal, Y['calib']),
-                       'isotonic': IsotonicCalibrator().fit(p_cal, Y['calib'])}
-        saved['models'][name] = dict(model=model, calibrators=calibrators)
+        model.fit(X_train, Y_train)
+        # Calibrators fitted on each condition's calibration set
+        cals = {}
+        for c in conds:
+            Xc, Yc = xy(part(f'calib@{c}'))
+            pc = model.predict_proba(Xc)[:, 1]
+            cals[c] = {'temperature': TemperatureScaler().fit(pc, Yc), 'isotonic': IsotonicCalibrator().fit(pc, Yc)}
+        saved['models'][name] = dict(model=model, calibrators=cals)
 
-        fig, ax = plt.subplots(figsize=(5, 5))
-        ax.plot([0, 1], [0, 1], 'k--', lw=1, label='perfect calibration')
-        for cname, cal in calibrators.items():
-            p = p_test_raw if cal is None else cal.transform(p_test_raw)
-            for subset, mask in (('all', slice(None)), ('clear', ~amb_test), ('ambiguous', amb_test)):
-                m = metrics(Y['test'][mask], p[mask])
-                rows.append(dict(model=name, calibration=cname, subset=subset, **m))
-            conf, acc, _ = reliability(Y['test'], p)
-            ax.plot(conf, acc, 'o-', label=f"{cname} (ECE {ece(Y['test'], p):.3f})")
-        if calibrators['temperature'] is not None:
-            ax.set_title(f"{name}: test reliability (T = {calibrators['temperature'].T:.2f})")
-        ax.set_xlabel('predicted probability of crossing')
-        ax.set_ylabel('observed frequency of crossing')
-        ax.legend(fontsize=8)
-        ax.grid(alpha=0.3)
+        fig, axes = plt.subplots(2, (len(conds) + 1) // 2, figsize=(4 * ((len(conds) + 1) // 2), 8), squeeze=False)
+        for ax, c in zip(axes.flat, conds):
+            test = part(f'test@{c}')
+            Xt, Yt = xy(test)
+            amb = test['ambiguous'].astype(str).str.lower().eq('true').to_numpy()
+            p_raw = model.predict_proba(Xt)[:, 1]
+            variants = {'raw': p_raw}
+            for kind in ('temperature', 'isotonic'):
+                variants[f'{kind} (nominal calib)'] = cals['nominal'][kind].transform(p_raw)
+                if c != 'nominal':
+                    variants[f'{kind} (recalibrated)'] = cals[c][kind].transform(p_raw)
+            ax.plot([0, 1], [0, 1], 'k--', lw=1)
+            for vname, p in variants.items():
+                for subset, mask in (('all', np.ones(len(Yt), bool)), ('clear', ~amb), ('ambiguous', amb)):
+                    rows.append(dict(model=name, condition=c, calibration=vname, subset=subset,
+                                     **metrics(Yt[mask], p[mask])))
+                if vname in ('raw', 'isotonic (nominal calib)', 'isotonic (recalibrated)'):
+                    conf, acc, _ = reliability(Yt, p)
+                    ax.plot(conf, acc, 'o-', ms=4, label=f'{vname}: ECE {ece(Yt, p):.3f}')
+            ax.set_title(f'{name}, test: {c}')
+            ax.set_xlabel('predicted P(crossing)')
+            ax.set_ylabel('observed frequency')
+            ax.legend(fontsize=7)
+            ax.grid(alpha=0.3)
+        for ax in list(axes.flat)[len(conds):]:
+            ax.axis('off')
         fig.tight_layout()
-        fig.savefig(os.path.join(args.dir, f'reliability_{name}.png'), dpi=120)
+        fig.savefig(os.path.join(args.dir, f'reliability_{name}.png'), dpi=110)
         plt.close(fig)
 
     res = pd.DataFrame(rows)
@@ -150,10 +131,13 @@ def main():
     with open(os.path.join(args.dir, 'intent_model.pkl'), 'wb') as f:
         pickle.dump(saved, f)
 
-    pd.set_option('display.width', 120)
-    for subset in ('all', 'clear', 'ambiguous'):
-        print(f'\nTest set, {subset} scenarios')
-        print(res[res.subset == subset].drop(columns='subset').round(3).to_string(index=False))
+    pd.set_option('display.width', 160)
+    for metric in ('ece', 'brier'):
+        for subset in ('all', 'ambiguous'):
+            tab = res[res.subset == subset].pivot_table(index=['model', 'calibration'], columns='condition',
+                                                        values=metric)[conds]
+            print(f'\n{metric.upper()} on the test set, {subset} scenarios (lower is better)')
+            print(tab.round(3).to_string())
     print(f"\nSaved metrics.csv, reliability plots and intent_model.pkl in {args.dir}")
 
 

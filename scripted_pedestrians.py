@@ -9,12 +9,19 @@ arrives on /hunav_goal_pose (published by line_controller.py). Publishes:
   /human_states        hunav_msgs/Agents   pedestrian poses, same topic line_controller.py uses
   /pedestrian_markers  MarkerArray         body cylinder and intent label, for RViz
 
+Response model: when the robot asks a pedestrian (std_msgs/Int32 with its id on
+/robot_ask), the pedestrian answers on /pedestrian_answer (std_msgs/String, JSON)
+after `response_delay` s of simulation time, with probability `response_prob`,
+giving its true intent with probability `answer_accuracy` (otherwise the wrong one).
+The pedestrian's motion is not affected by being asked.
+
 Run with:
   python3 scripted_pedestrians.py --ros-args -p use_sim_time:=true -p scenario_id:=cafe_cc_x_00
 """
 import json
 import math
 import os
+import random
 import sys
 
 import rclpy
@@ -23,6 +30,7 @@ from geometry_msgs.msg import PoseStamped
 from gazebo_msgs.msg import EntityState
 from gazebo_msgs.srv import SetEntityState, SpawnEntity
 from hunav_msgs.msg import Agent, Agents
+from std_msgs.msg import Int32, String
 from visualization_msgs.msg import Marker, MarkerArray
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -39,7 +47,6 @@ HUMAN_SDF = f"""<?xml version="1.0"?>
       <collision name="collision">
         <pose>0 0 {HEIGHT / 2:.2f} 0 0 0</pose>
         <geometry><cylinder><radius>{HUMAN_RADIUS}</radius><length>{HEIGHT}</length></cylinder></geometry>
-        <surface><contact><collide_without_contact>true</collide_without_contact></contact></surface>
       </collision>
       <visual name="torso">
         <pose>0 0 0.78 0 0 0</pose>
@@ -67,6 +74,9 @@ class ScriptedPedestrians(Node):
         self.declare_parameter('scenario_id', '')
         self.declare_parameter('frame_id', 'odom')
         self.declare_parameter('rate', 20.0)
+        self.declare_parameter('response_delay', 1.5)     # s of sim time before answering
+        self.declare_parameter('response_prob', 1.0)      # probability of answering at all
+        self.declare_parameter('answer_accuracy', 1.0)    # probability the answer is the true intent
         sid = self.get_parameter('scenario_id').value
         labels = {l['id']: l for l in json.load(open(self.get_parameter('labels_file').value))}
         if sid not in labels:
@@ -86,6 +96,13 @@ class ScriptedPedestrians(Node):
         self.state_pub = self.create_publisher(Agents, '/human_states', 10)
         self.marker_pub = self.create_publisher(MarkerArray, '/pedestrian_markers', 10)
         self.create_subscription(PoseStamped, '/hunav_goal_pose', self.on_release, 10)
+        self.create_subscription(Int32, '/robot_ask', self.on_ask, 10)
+        self.answer_pub = self.create_publisher(String, '/pedestrian_answer', 10)
+        self.response_delay = self.get_parameter('response_delay').value
+        self.response_prob = self.get_parameter('response_prob').value
+        self.answer_accuracy = self.get_parameter('answer_accuracy').value
+        self.rng = random.Random(f'answers-{sid}')        # reproducible responses per scenario
+        self.pending_answers = []                         # (time due, pedestrian id, answer)
 
         self.t_release = None
         self.spawn_futures = None
@@ -101,6 +118,17 @@ class ScriptedPedestrians(Node):
         if self.t_release is None:
             self.t_release = self.now()
             self.get_logger().info('Pedestrians released')
+
+    def on_ask(self, msg):
+        t = self.now()
+        if self.rng.random() >= self.response_prob:
+            self.get_logger().info(f'Asked pedestrian {msg.data}: no answer')
+            return
+        truth = self.label['intent']
+        wrong = 'not_crossing' if truth == 'crossing' else 'crossing'
+        answer = truth if self.rng.random() < self.answer_accuracy else wrong
+        self.pending_answers.append((t + self.response_delay, msg.data, answer))
+        self.get_logger().info(f'Asked pedestrian {msg.data}: will answer "{answer}" in {self.response_delay:.1f} s')
 
     def spawn(self):
         if not self.spawn_cli.service_is_ready():
@@ -125,7 +153,11 @@ class ScriptedPedestrians(Node):
                 self.get_logger().info('Pedestrians spawned, waiting for release')
             return
 
-        t_rel = self.now() - self.t_release if self.t_release is not None else 0.0
+        now = self.now()
+        for item in [a for a in self.pending_answers if a[0] <= now]:
+            self.pending_answers.remove(item)
+            self.answer_pub.publish(String(data=json.dumps(dict(id=item[1], intent=item[2]))))
+        t_rel = now - self.t_release if self.t_release is not None else 0.0
         stamp = self.get_clock().now().to_msg()
         agents = Agents()
         agents.header.stamp, agents.header.frame_id = stamp, self.frame
