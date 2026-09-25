@@ -13,7 +13,8 @@ ahead, and only then asks (or, for always_cautious, stops).
   always_act      never reacts (baseline)
   always_cautious at the deadline, stops if the pedestrian is within `caution_dist` of the line
   always_ask      at the deadline, asks once, stops until answered, then follows the answer
-  threshold       predicts P(crossing) with the (calibrated) intent model:
+  threshold       predicts P(crossing) with the (calibrated) intent model, averaged over
+                  the last `smooth_n` predictions (so noise cannot trigger a decision):
                     p >= p_high -> stop (yield);  p <= p_low -> go;
                     otherwise keep going until the deadline, then ask once and stop
                     until answered, then follow the answer
@@ -43,7 +44,7 @@ def load_predictor(model_file, model_name='mlp', calibration='isotonic', calib_c
 class AskOrActPolicy:
     def __init__(self, policy, model=None, calibrator=None, p_low=0.2, p_high=0.8,
                  engage_dist=1.0, ask_dist=0.6, clear_dist=0.6, caution_dist=1.5, answer_timeout=5.0,
-                 true_intent=''):
+                 true_intent='', smooth_n=5):
         if policy not in POLICIES:
             raise ValueError(f'unknown policy {policy}; choose from {POLICIES}')
         if policy == 'threshold' and model is None:
@@ -53,6 +54,8 @@ class AskOrActPolicy:
         self.engage_dist, self.ask_dist = engage_dist, ask_dist
         self.clear_dist, self.caution_dist = clear_dist, caution_dist
         self.answer_timeout, self.true_intent = answer_timeout, true_intent
+        self.smooth_n = max(1, int(smooth_n))
+        self.p_hist = {}
         self.obs, self.side0, self.cleared = {}, {}, set()
         self.asked, self.knowledge, self.p_cache = {}, {}, {}
         self.asks, self.answers, self.decisions = [], [], []
@@ -80,6 +83,10 @@ class AskOrActPolicy:
         p = float(self.model.predict_proba(f.reshape(1, -1))[0, 1])
         if self.calibrator is not None:
             p = float(self.calibrator.transform(np.array([p]))[0])
+        hist = self.p_hist.setdefault(hid, [])
+        hist.append(p)
+        del hist[:-self.smooth_n]
+        p = float(np.mean(hist))
         self.p_cache[hid] = (n, p)
         return p
 

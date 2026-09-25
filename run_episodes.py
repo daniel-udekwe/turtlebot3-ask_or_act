@@ -168,7 +168,7 @@ def main():
     ap.add_argument('--policy', default='always_act',
                     choices=['always_act', 'always_cautious', 'always_ask', 'threshold', 'oracle'])
     ap.add_argument('--model', default='mlp')
-    ap.add_argument('--calibration', default='isotonic', choices=['raw', 'isotonic', 'temperature'])
+    ap.add_argument('--calibration', default='isotonic', choices=['raw', 'isotonic', 'isotonic_dw', 'temperature'])
     ap.add_argument('--calib-condition', default='recal', choices=['stale', 'recal'],
                     help='stale: calibrator fitted on nominal data; recal: fitted on the scenario condition')
     ap.add_argument('--p-low', type=float, default=0.2)

@@ -12,7 +12,7 @@ runs validate a subset.
 Each method is a policy, optionally with a predictor calibration:
   always_act, always_cautious, always_ask, oracle
   threshold:raw          raw predictor
-  threshold:<cal>@stale  calibrator fitted on nominal data (cal = isotonic or temperature)
+  threshold:<cal>@stale  calibrator fitted on nominal data (cal = isotonic, isotonic_dw or temperature)
   threshold:<cal>@recal  calibrator fitted on the test condition's own calibration set
 
 Usage:
@@ -41,7 +41,8 @@ MAX_DURATION = 60.0
 ROBOT_RADIUS = 0.1          # matches COLLISION_DIST = 0.4 in run_episodes.py
 COLLISION_DIST = HUMAN_RADIUS + ROBOT_RADIUS
 DEFAULT_METHODS = ['always_act', 'always_cautious', 'always_ask', 'oracle',
-                   'threshold:raw', 'threshold:isotonic@stale', 'threshold:isotonic@recal']
+                   'threshold:raw', 'threshold:isotonic@stale', 'threshold:isotonic@recal',
+                   'threshold:isotonic_dw@stale', 'threshold:isotonic_dw@recal']
 
 
 def simulate(label, pol, noise, response_delay, response_prob, answer_accuracy):
@@ -95,7 +96,7 @@ def simulate(label, pol, noise, response_delay, response_prob, answer_accuracy):
 def make_policy(method, label, predictors, args, condition):
     name, _, variant = method.partition(':')
     common = dict(p_low=args.p_low, p_high=args.p_high, engage_dist=args.engage_dist, ask_dist=args.ask_dist,
-                  true_intent=label['intent'])
+                  true_intent=label['intent'], smooth_n=args.smooth_n)
     if name != 'threshold':
         return AskOrActPolicy(name, **common)
     if variant == 'raw':
@@ -124,7 +125,7 @@ def summarize(df, args):
                         stop_s_not_crossing=g.loc[g.intent == 'not_crossing', 'stopped_time'].mean()))
     summ = pd.DataFrame(out).set_index(['condition', 'method'])
     pd.set_option('display.width', 180)
-    print(f'\nSummary (band {args.p_low}-{args.p_high}, deadline {args.ask_dist} m, response delay '
+    print(f'\nSummary (band {args.p_low}-{args.p_high}, deadline {args.ask_dist} m, smoothing {args.smooth_n}, response delay '
           f'{args.response_delay} s, response prob {args.response_prob}, answer accuracy {args.answer_accuracy})')
     print(summ.round(3).to_string())
     summ.to_csv(args.out.replace('.csv', '_summary.csv'))
@@ -143,6 +144,7 @@ def main():
     ap.add_argument('--p-high', type=float, default=0.8)
     ap.add_argument('--engage-dist', type=float, default=1.0)
     ap.add_argument('--ask-dist', type=float, default=0.6, help='decision deadline (m ahead)')
+    ap.add_argument('--smooth-n', type=int, default=5, help='predictions averaged before thresholding (10 Hz)')
     ap.add_argument('--response-delay', type=float, default=1.5)
     ap.add_argument('--response-prob', type=float, default=1.0)
     ap.add_argument('--answer-accuracy', type=float, default=1.0)
@@ -158,7 +160,7 @@ def main():
     cond_index = {c: i for i, c in enumerate(CONDITIONS)}
     for cond in args.conditions:
         predictors = {('raw', None): load_predictor(args.model_file, args.model, 'raw')}
-        for kind in ('isotonic', 'temperature'):
+        for kind in ('isotonic', 'isotonic_dw', 'temperature'):
             for c in {'nominal', cond}:
                 predictors[(kind, c)] = load_predictor(args.model_file, args.model, kind, c)
         seeds = range(10000 * cond_index[cond] + args.seed_start, 10000 * cond_index[cond] + args.seed_start + args.seeds)

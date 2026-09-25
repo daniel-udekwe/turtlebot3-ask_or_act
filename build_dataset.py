@@ -43,7 +43,12 @@ NONCROSS_WINDOW = 5.0    # s, decision window for clear non-crossing scenarios
 def episode_samples(label, rng, noise):
     traj = build_trajectory(label['start'], label['plan'], label['human_speed'])
     times = [s[0] for s in traj]
-    t_end = label['commit_t'] if label['commit_t'] is not None else NONCROSS_WINDOW
+    if label['commit_t'] is not None:
+        t_end = label['commit_t']
+    elif label.get('window_end') is not None:
+        t_end = label['window_end']
+    else:
+        t_end = NONCROSS_WINDOW
     dt = 1.0 / OBS_RATE
     hist, rows = [], []
     k = -int(round(PRE_RELEASE * OBS_RATE))

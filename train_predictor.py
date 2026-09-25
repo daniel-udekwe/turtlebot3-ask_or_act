@@ -6,7 +6,10 @@ Models:       logistic regression, small neural network (MLP)
 Training:     nominal condition only
 Calibration:  none (raw); temperature scaling and isotonic regression fitted on the
               nominal calibration set ("stale" under shift) or on each shifted
-              condition's own calibration set ("recalibrated")
+              condition's own calibration set ("recalibrated"); and decision-aware
+              isotonic calibration ("isotonic_dw"), fitted only on samples within
+              DECISION_WINDOW s of the moment a crossing pedestrian reaches the line,
+              where the robot actually has to decide
 Metrics:      ECE, Brier score, log loss, AUC, accuracy on each condition's test set,
               overall and for clear vs ambiguous scenarios
 Outputs (in ~/ask_or_act/predictor/):
@@ -37,6 +40,7 @@ from intent_features import FEATURE_NAMES
 
 HOME = os.path.expanduser('~')
 DIR = os.path.join(HOME, 'ask_or_act', 'predictor')
+DECISION_WINDOW = 3.5    # s before the commit time; covers the robot's decision deadline
 def ece(y, p, bins=15):
     edges = np.linspace(0, 1, bins + 1)
     idx = np.clip(np.digitize(p, edges) - 1, 0, bins - 1)
@@ -93,7 +97,9 @@ def main():
         for c in conds:
             Xc, Yc = xy(part(f'calib@{c}'))
             pc = model.predict_proba(Xc)[:, 1]
-            cals[c] = {'temperature': TemperatureScaler().fit(pc, Yc), 'isotonic': IsotonicCalibrator().fit(pc, Yc)}
+            win = part(f'calib@{c}')['time_to_commit'].to_numpy() <= DECISION_WINDOW
+            cals[c] = {'temperature': TemperatureScaler().fit(pc, Yc), 'isotonic': IsotonicCalibrator().fit(pc, Yc),
+                       'isotonic_dw': IsotonicCalibrator().fit(pc[win], Yc[win])}
         saved['models'][name] = dict(model=model, calibrators=cals)
 
         fig, axes = plt.subplots(2, (len(conds) + 1) // 2, figsize=(4 * ((len(conds) + 1) // 2), 8), squeeze=False)
@@ -101,15 +107,17 @@ def main():
             test = part(f'test@{c}')
             Xt, Yt = xy(test)
             amb = test['ambiguous'].astype(str).str.lower().eq('true').to_numpy()
+            dwin = test['time_to_commit'].to_numpy() <= DECISION_WINDOW
             p_raw = model.predict_proba(Xt)[:, 1]
             variants = {'raw': p_raw}
-            for kind in ('temperature', 'isotonic'):
+            for kind in ('temperature', 'isotonic', 'isotonic_dw'):
                 variants[f'{kind} (nominal calib)'] = cals['nominal'][kind].transform(p_raw)
                 if c != 'nominal':
                     variants[f'{kind} (recalibrated)'] = cals[c][kind].transform(p_raw)
             ax.plot([0, 1], [0, 1], 'k--', lw=1)
             for vname, p in variants.items():
-                for subset, mask in (('all', np.ones(len(Yt), bool)), ('clear', ~amb), ('ambiguous', amb)):
+                for subset, mask in (('all', np.ones(len(Yt), bool)), ('clear', ~amb), ('ambiguous', amb),
+                                     ('decision_window', dwin)):
                     rows.append(dict(model=name, condition=c, calibration=vname, subset=subset,
                                      **metrics(Yt[mask], p[mask])))
                 if vname in ('raw', 'isotonic (nominal calib)', 'isotonic (recalibrated)'):
@@ -133,7 +141,7 @@ def main():
 
     pd.set_option('display.width', 160)
     for metric in ('ece', 'brier'):
-        for subset in ('all', 'ambiguous'):
+        for subset in ('all', 'decision_window'):
             tab = res[res.subset == subset].pivot_table(index=['model', 'calibration'], columns='condition',
                                                         values=metric)[conds]
             print(f'\n{metric.upper()} on the test set, {subset} scenarios (lower is better)')

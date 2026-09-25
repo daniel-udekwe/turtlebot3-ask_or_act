@@ -10,8 +10,10 @@ the intended moment.
 Scenario families (robot drives a fixed line along y ~ 0):
   clear_cross     walks straight across the robot's line
   clear_noncross  walks away, parallel to the line, never enters it
-  hesitant        walks toward the line, pauses, then crosses or turns back
-  late_turn       heads for the line, then crosses or veers away at the last moment
+  hesitant        walks toward the line, pauses, then crosses or turns back      (ambiguous)
+  late_turn       heads for the line, then crosses or veers away at the last moment (ambiguous)
+  slow_cross      crosses slowly and steadily; readable before the robot must decide
+  wait_far        walks toward the line, stops well back and waits; readable before the robot must decide
 
 Timing: for ambiguous scenarios, crossing and not-crossing twins with the same
 seed share every parameter and the same start offsets, computed from the
@@ -50,7 +52,8 @@ ENVS = {
 # Experimental conditions. 'nominal' is the training distribution; the others are
 # distribution shifts used to test calibration. `noise` is the tracking noise (m)
 # used by build_dataset.py; the rest change how pedestrians behave.
-NOMINAL = dict(speed=(0.8, 1.2), pause=(1.5, 2.5), hes_gap=(0.8, 1.2), late_gap=(0.4, 0.7), noise=0.03)
+NOMINAL = dict(speed=(0.8, 1.2), pause=(1.5, 2.5), hes_gap=(0.8, 1.2), late_gap=(0.4, 0.7),
+               slow_speed=(0.35, 0.55), wait_gap=(1.6, 2.2), noise=0.03)
 CONDITIONS = {
     'nominal': NOMINAL,
     'slow': dict(NOMINAL, speed=(0.5, 0.8)),                 # slower walkers
@@ -67,9 +70,13 @@ FAMILIES = [
     ('hesitant', 'not_crossing'),
     ('late_turn', 'crossing'),
     ('late_turn', 'not_crossing'),
+    ('slow_cross', 'crossing'),
+    ('wait_far', 'not_crossing'),
 ]
 SHORT = {'clear_cross': 'cc', 'clear_noncross': 'cn', 'hesitant': 'hs', 'late_turn': 'lt',
-         'crossing': 'x', 'not_crossing': 'n'}
+         'slow_cross': 'sc', 'wait_far': 'wf', 'crossing': 'x', 'not_crossing': 'n'}
+AMBIGUOUS = ('hesitant', 'late_turn')
+WAIT_AHEAD = (1.2, 1.8)     # wait_far: robot this far (m) from the pedestrian when it stops
 
 
 def walk(p, stop=True):
@@ -104,6 +111,13 @@ def plans(env, family, rng, cond):
         params.update(gap=round(gap, 3))
         return S, params, lambda intent: [walk(B, stop=False),
                                           walk(N if intent == 'crossing' else env['veer'])]
+    if family == 'slow_cross':
+        return S, params, lambda intent: [walk(N)]
+    if family == 'wait_far':
+        gap = rng.uniform(*cond['wait_gap'])       # stops this far before the line (m)
+        F = point_at_y(S, N, -gap)
+        params.update(gap=round(gap, 3))
+        return S, params, lambda intent: [walk(F), dict(type='wait', duration=120.0)]
     raise ValueError(family)
 
 
@@ -122,10 +136,23 @@ def build(env_name, family, intent, seed, condition='nominal'):
     d_commit = rng.uniform(0.0, 0.4)                        # robot distance to crossing point at commit
     start, params, plan_for = plans(env, family, rng, cond)
     plan = plan_for(intent)
+    window_end = None
 
+    if family == 'slow_cross':
+        speed = rng.uniform(*cond['slow_speed'])
     if family == 'clear_noncross':
         commit = None
         release, robot_delay = rng.uniform(0.0, 4.0), 0.0
+    elif family == 'wait_far':
+        # Release so the pedestrian stops when the robot is WAIT_AHEAD m away from it
+        commit = None
+        traj = build_trajectory(start, plan, speed)
+        t_stop = next(tt for tt, _, _, _, v in reversed(traj) if v > 0.0)
+        stop_x = plan[0]['to'][0]
+        ahead = rng.uniform(*WAIT_AHEAD)
+        rel = t_stop - (ROBOT['start'][0] - (stop_x + ahead)) / ROBOT['speed']
+        release, robot_delay = (0.0, rel) if rel >= 0.0 else (-rel, 0.0)
+        window_end = t_stop + (ahead + 0.5) / ROBOT['speed']     # until the robot has passed
     else:
         commit = first_line_crossing(build_trajectory(start, plan_for('crossing'), speed))
         release, robot_delay = offsets(commit[0], commit[1], d_commit)
@@ -135,11 +162,12 @@ def build(env_name, family, intent, seed, condition='nominal'):
         sid += f'_{condition}'
     return dict(
         id=sid, env=env_name, family=family, intent=intent, condition=condition,
-        ambiguous=family in ('hesitant', 'late_turn'), seed=seed,
+        ambiguous=family in AMBIGUOUS, seed=seed,
         human_speed=round(speed, 3), robot_dist_at_commit=round(d_commit, 3),
         release_delay=round(release, 3), robot_delay=round(robot_delay, 3),
         commit_t=round(commit[0], 3) if commit else None,
         commit_x=round(commit[1], 3) if commit else None,
+        window_end=round(window_end, 3) if window_end is not None else None,
         start=[round(start[0], 3), round(start[1], 3)], plan=plan,
         waypoints=[s['to'] for s in plan if s['type'] == 'walk'], **params)
 
