@@ -1,0 +1,17 @@
+\begin{table}[t]
+\centering
+\caption{Expected calibration error on the fresh test set, over all samples and within the decision window (recalibrated on each condition). AUC is unaffected by calibration.}
+\label{tab:calibration}
+\begin{tabular}{lccccccc}
+\toprule
+Condition & Raw all & Raw window & Iso. all & Iso. window & D.-a. all & D.-a. window & AUC window \\
+\midrule
+Nominal & 0.040 & 0.053 & 0.011 & 0.036 & 0.047 & 0.015 & 0.896 \\
+Slow & 0.066 & 0.063 & 0.010 & 0.034 & 0.031 & 0.009 & 0.907 \\
+Fast & 0.047 & 0.069 & 0.015 & 0.041 & 0.042 & 0.017 & 0.903 \\
+Long pause & 0.051 & 0.070 & 0.015 & 0.052 & 0.055 & 0.019 & 0.903 \\
+Noisy & 0.076 & 0.093 & 0.013 & 0.056 & 0.070 & 0.017 & 0.826 \\
+Combined & 0.101 & 0.079 & 0.018 & 0.036 & 0.049 & 0.014 & 0.847 \\
+\bottomrule
+\end{tabular}
+\end{table}

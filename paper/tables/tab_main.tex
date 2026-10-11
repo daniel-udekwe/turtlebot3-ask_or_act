@@ -1,0 +1,28 @@
+\begin{table}[t]
+\centering
+\caption{Closed-loop results on the final scenarios (400 crossing encounters, 800 episodes per method and condition).}
+\label{tab:main}
+\begin{tabular}{llcccc}
+\toprule
+Condition & Method & Collisions (\%) [95\% CI] & Questions/ep. & Delay (s) & Stop, non-crossers (s) \\
+\midrule
+Nominal & Always act & 100.0 [99.0, 100.0] & 0.00 & 0.02 & 0.00 \\
+ & Always cautious & 18.0 [14.5, 22.1] & 0.00 & 1.86 & 1.03 \\
+ & Always ask & 0.0 [0.0, 1.0] & 0.88 & 2.16 & 1.13 \\
+ & Oracle & 0.0 [0.0, 1.0] & 0.00 & 2.60 & 0.00 \\
+ & Raw & 4.5 [2.9, 7.0] & 0.69 & 1.98 & 0.80 \\
+ & Isotonic (stale) & 4.5 [2.9, 7.0] & 0.70 & 1.96 & 0.75 \\
+ & Isotonic (recalibrated) & 4.5 [2.9, 7.0] & 0.70 & 1.96 & 0.75 \\
+ & Decision-aware (recalibrated) & 0.8 [0.3, 2.2] & 0.73 & 2.04 & 0.81 \\
+\midrule
+Noisy & Always act & 100.0 [99.0, 100.0] & 0.00 & 0.02 & 0.00 \\
+ & Always cautious & 16.5 [13.2, 20.5] & 0.00 & 1.69 & 0.92 \\
+ & Always ask & 0.0 [0.0, 1.0] & 0.89 & 2.21 & 1.15 \\
+ & Oracle & 0.0 [0.0, 1.0] & 0.00 & 2.39 & 0.00 \\
+ & Raw & 34.5 [30.0, 39.3] & 0.52 & 1.58 & 0.83 \\
+ & Isotonic (stale) & 31.8 [27.4, 36.5] & 0.54 & 1.60 & 0.79 \\
+ & Isotonic (recalibrated) & 15.5 [12.3, 19.4] & 0.69 & 1.85 & 0.86 \\
+ & Decision-aware (recalibrated) & 1.2 [0.5, 2.9] & 0.86 & 2.21 & 1.15 \\
+\bottomrule
+\end{tabular}
+\end{table}

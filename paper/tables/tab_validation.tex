@@ -1,0 +1,19 @@
+\begin{table}[t]
+\centering
+\caption{Gazebo validation: 40 episodes per method and condition, compared one to one with the offline simulator.}
+\label{tab:validation}
+\begin{tabular}{llccccc}
+\toprule
+Method & Condition & Agreement (\%) & Coll. Gazebo (\%) & Coll. offline (\%) & $r$ (min. dist.) & Median diff. (cm) \\
+\midrule
+Always act & Nominal & 100.0 & 50.0 & 50.0 & 0.996 & +2.0 \\
+Always act & Noisy & 97.5 & 47.5 & 50.0 & 0.987 & +2.5 \\
+Always ask & Nominal & 100.0 & 0.0 & 0.0 & 1.000 & -0.8 \\
+Always ask & Noisy & 100.0 & 0.0 & 0.0 & 0.999 & +0.0 \\
+Raw & Nominal & 95.0 & 2.5 & 7.5 & 0.918 & -0.5 \\
+Raw & Noisy & 90.0 & 17.5 & 17.5 & 0.988 & +0.2 \\
+Decision-aware (recalibrated) & Nominal & 100.0 & 0.0 & 0.0 & 1.000 & -1.0 \\
+Decision-aware (recalibrated) & Noisy & 97.5 & 0.0 & 2.5 & 0.998 & +0.1 \\
+\bottomrule
+\end{tabular}
+\end{table}

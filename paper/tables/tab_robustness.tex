@@ -1,0 +1,13 @@
+\begin{table}[t]
+\centering
+\caption{Collisions on crossing encounters (\%): range over five neural-network predictors trained with different seeds; logistic regression in parentheses.}
+\label{tab:robustness}
+\begin{tabular}{lcccc}
+\toprule
+Condition & Raw & Isotonic (stale) & Isotonic (recalibrated) & Decision-aware (recalibrated) \\
+\midrule
+Nominal & 0.8--4.5 (43.0) & 0.5--4.5 (51.2) & 0.5--4.5 (51.2) & 0.0--0.8 (32.2) \\
+Noisy & 18.5--52.5 (19.0) & 15.0--56.5 (21.5) & 5.5--15.8 (11.0) & 1.2--10.5 (2.8) \\
+\bottomrule
+\end{tabular}
+\end{table}
